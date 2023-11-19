@@ -29,6 +29,7 @@ import { useNavigation } from '@react-navigation/native';
 import { CodeVerifier } from '../../components/CodeVerifier';
 import { CheckIcon } from 'react-native-heroicons/outline';
 import { REQUIREMENTS } from '../../utils/passwordRequirements';
+import { phoneMask } from '../../utils/phoneMask';
 
 export function SignUp() {
   const navigator = useNavigation();
@@ -47,12 +48,23 @@ export function SignUp() {
   const [error, setError] = useState(false);
   const [success, setSuccess] = useState(false);
 
+  const emailRegex = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w\w+)+$/;
+
   const handleSubmit = async () => {
     setSuccess(true);
   };
 
   const sendCode = async () => {
     console.log('send code');
+  };
+
+  const validateEmail = (value: string) => {
+    if (!emailRegex.test(value.trim())) {
+      setEmail(value.trim());
+      return;
+    }
+
+    setEmail(value.trim());
   };
 
   const renderPage = () => {
@@ -65,13 +77,17 @@ export function SignUp() {
                 label="Nome"
                 placeholder="Digite seu nome"
                 onChangeText={setName}
+                value={name}
               />
             </InputWrapper>
 
             <Input
               label="Telefone"
-              placeholder="+ 55 (00) 0000-0000"
+              placeholder="+55 (00) 00000-0000"
               onChangeText={setPhone}
+              value={phoneMask(phone)}
+              maxLength={15}
+              keyboardType="numeric"
             />
           </>
         );
@@ -83,7 +99,9 @@ export function SignUp() {
               <Input
                 label="E-mail"
                 placeholder="Digite seu e-mail"
-                onChangeText={setEmail}
+                onChangeText={(value) => validateEmail(value)}
+                value={email}
+                hasError={email.length > 0 && !emailRegex.test(email)}
               />
             </InputWrapper>
 
@@ -95,6 +113,7 @@ export function SignUp() {
                 onChangeText={setPassword}
                 secureTextEntry={!isPasswordVisible}
                 onClickIcon={() => setIsPasswordVisible(!isPasswordVisible)}
+                value={password}
               />
             </InputWrapper>
 
@@ -107,6 +126,7 @@ export function SignUp() {
               onClickIcon={() =>
                 setIsPasswordConfirmationVisible(!isPasswordConfirmationVisible)
               }
+              value={passwordConfirmation}
             />
 
             <RequirementsList>
@@ -202,6 +222,11 @@ export function SignUp() {
             <Button
               text={formPage < 3 ? 'Continuar' : 'Verificar'}
               onPress={() => (formPage === 1 ? setFormPage(2) : handleSubmit())}
+              disabled={
+                (formPage === 1 && (!name || phone.length < 14)) ||
+                (formPage === 2 &&
+                  (!email || !password || !passwordConfirmation))
+              }
             />
           </ButtonWrapper>
         </Form>

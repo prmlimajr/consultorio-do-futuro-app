@@ -9,9 +9,18 @@ export const Label = styled.Text`
   margin-bottom: 8px;
 `;
 
-export const InputContainer = styled.View`
-  background-color: ${({ theme }) => theme.COLORS.BACKGROUND.GRAY_100};
-  border: 1px solid #c6c6c6;
+export const InputContainer = styled.View<{
+  isFocused?: boolean;
+  hasError?: boolean;
+}>`
+  background-color: ${({ theme, hasError }) =>
+    hasError ? '#FBEFEF' : theme.COLORS.BACKGROUND.GRAY_100};
+  border: ${({ isFocused, hasError }) =>
+    hasError
+      ? '2px solid #C83532'
+      : isFocused
+        ? '2px solid #c6c6c6'
+        : '1px solid #c6c6c6'};
   border-radius: 4px;
   padding: 12px;
   flex-direction: row;
@@ -19,4 +28,19 @@ export const InputContainer = styled.View`
   align-items: center;
 `;
 
-export const InputField = styled.TextInput``;
+export const InputField = styled.TextInput`
+  width: 90%;
+`;
+
+export const ErrorContainer = styled.View`
+  margin-top: 8px;
+  flex-direction: row;
+  align-items: center;
+`;
+
+export const Message = styled.Text`
+  margin-left: 4px;
+  color: #c83532;
+  font-size: 12px;
+  font-family: ${({ theme }) => theme.FONT_FAMILY.REGULAR};
+`;

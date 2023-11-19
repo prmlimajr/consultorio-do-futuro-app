@@ -2,12 +2,13 @@ import { createContext, useState } from 'react';
 import { User } from '../types/user';
 import { api } from '../config/api';
 import { AppError } from '../utils/AppError';
+import Toast from 'react-native-toast-message';
 
 interface AuthContextData {
   user: User;
   loading: boolean;
   error: boolean;
-  signIn: ({ email, password }: SignInCredentials) => Promise<void>;
+  signIn: ({ email, password }: SignInCredentials) => Promise<boolean>;
 }
 
 export const AuthContext = createContext<AuthContextData>(
@@ -34,11 +35,13 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       setError(false);
 
       const { data } = await api.post('/auth', {
-        email,
+        email: email.trim().toLowerCase(),
         password,
       });
 
       setUser(data.user);
+
+      return true;
     } catch (error) {
       setError(true);
 
@@ -48,8 +51,13 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         ? error.message
         : 'Falha na autenticação, verifique suas credenciais.';
 
-      console.log(message);
-      // MOSTRAR TOAST
+      Toast.show({
+        type: 'error',
+        text1: message,
+        onPress: () => Toast.hide(),
+      });
+
+      return false;
     } finally {
       setLoading(false);
     }

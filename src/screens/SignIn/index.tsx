@@ -19,6 +19,7 @@ import {
 } from './styles';
 import { Button } from '../../components/Button';
 import { useNavigation } from '@react-navigation/native';
+import { useAuth } from '../../hooks/useAuth';
 
 export function SignIn() {
   const navigator = useNavigation();
@@ -26,11 +27,34 @@ export function SignIn() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isPasswordVisible, setIsPasswordVisible] = useState(false);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(false);
 
-  const handleSubmit = () => {
-    console.log('click');
+  const { signIn, loading } = useAuth();
+
+  const emailRegex = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w\w+)+$/;
+
+  const handleSubmit = async () => {
+    const isLogged = await signIn({ email, password });
+
+    if (isLogged) {
+      navigator.navigate('Home');
+    }
+  };
+
+  const handleChange = (field: string, value: string) => {
+    switch (field) {
+      case 'email':
+        if (!emailRegex.test(value.trim())) {
+          setEmail(value.trim());
+          return;
+        }
+
+        setEmail(value.trim());
+
+        break;
+      default:
+        setPassword(value.trim());
+        break;
+    }
   };
 
   return (
@@ -54,7 +78,9 @@ export function SignIn() {
             <Input
               label="E-mail"
               placeholder="Digite seu e-mail"
-              onChangeText={setEmail}
+              onChangeText={(value) => handleChange('email', value)}
+              value={email}
+              hasError={email.length > 0 && !emailRegex.test(email)}
             />
           </InputWrapper>
 
@@ -62,9 +88,10 @@ export function SignIn() {
             label="Senha"
             placeholder="Digite sua senha"
             icon={isPasswordVisible ? 'eye-off' : 'eye-on'}
-            onChangeText={setPassword}
+            onChangeText={(value) => handleChange('password', value)}
             secureTextEntry={!isPasswordVisible}
             onClickIcon={() => setIsPasswordVisible(!isPasswordVisible)}
+            value={password}
           />
 
           <ForgotPasswordWrapper>
@@ -76,7 +103,12 @@ export function SignIn() {
           </ForgotPasswordWrapper>
 
           <ButtonWrapper>
-            <Button text="Entrar" onPress={handleSubmit} />
+            <Button
+              text="Entrar"
+              onPress={handleSubmit}
+              disabled={loading || (!email && !password)}
+              loading={loading}
+            />
           </ButtonWrapper>
         </Form>
 

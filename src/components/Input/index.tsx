@@ -1,12 +1,25 @@
-import { EyeIcon, EyeSlashIcon } from 'react-native-heroicons/solid';
+import {
+  ExclamationCircleIcon,
+  EyeIcon,
+  EyeSlashIcon,
+} from 'react-native-heroicons/solid';
 import { PencilIcon } from 'react-native-heroicons/outline';
-import { InputContainer, InputField, Label, Wrapper } from './styles';
+import {
+  ErrorContainer,
+  InputContainer,
+  InputField,
+  Label,
+  Message,
+  Wrapper,
+} from './styles';
 import { TextInputProps, TouchableOpacity } from 'react-native';
+import { useState } from 'react';
 
 interface InputProps extends TextInputProps {
   label: string;
   placeholder: string;
   icon?: string;
+  hasError?: boolean;
   onClickIcon?: () => void;
 }
 
@@ -14,9 +27,12 @@ export function Input({
   label,
   placeholder,
   icon,
+  hasError,
   onClickIcon,
   ...rest
 }: InputProps) {
+  const [isFocused, setIsFocused] = useState(false);
+
   const renderIcon = () => {
     switch (icon) {
       case 'eye-on':
@@ -34,10 +50,12 @@ export function Input({
     <Wrapper>
       <Label>{label}</Label>
 
-      <InputContainer>
+      <InputContainer isFocused={isFocused} hasError={hasError}>
         <InputField
           placeholder={placeholder}
           placeholderTextColor="#C6C6C6"
+          onFocus={() => setIsFocused(true)}
+          onBlur={() => setIsFocused(false)}
           {...rest}
         />
 
@@ -47,6 +65,14 @@ export function Input({
           </TouchableOpacity>
         )}
       </InputContainer>
+
+      {hasError && (
+        <ErrorContainer>
+          <ExclamationCircleIcon size={16} color="#C83532" />
+
+          <Message>Erro</Message>
+        </ErrorContainer>
+      )}
     </Wrapper>
   );
 }

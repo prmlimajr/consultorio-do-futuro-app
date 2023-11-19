@@ -17,8 +17,8 @@ import {
   DMSans_700Bold,
   DMSans_700Bold_Italic,
 } from '@expo-google-fonts/dm-sans';
-import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { Routes } from './routes';
+import { Toast } from 'react-native-toast-message/lib/src/Toast';
 
 SplashScreen.preventAutoHideAsync();
 
@@ -53,8 +53,11 @@ export function Bootstrap() {
           ? error.message
           : 'Falha no servidor. Tente novamente mais tarde.';
 
-        console.log(message);
-        // MOSTRAR TOAST
+        Toast.show({
+          type: 'error',
+          text1: message,
+          onPress: () => Toast.hide(),
+        });
       } finally {
         setLoading(false);
       }

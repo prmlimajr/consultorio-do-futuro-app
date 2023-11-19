@@ -1,11 +1,8 @@
 import styled from 'styled-components/native';
 
-export const Container = styled.ScrollView`
+export const Container = styled.SafeAreaView`
   background-color: ${({ theme }) => theme.COLORS.BACKGROUND.GRAY_100};
-`;
-
-export const Scrollable = styled.View`
-  background-color: ${({ theme }) => theme.COLORS.BACKGROUND.GRAY_100};
+  flex: 1;
 `;
 
 export const GreetingContainer = styled.View`
@@ -43,5 +40,9 @@ export const SectionTitle = styled.Text`
   font-family: ${({ theme }) => theme.FONT_FAMILY.BOLD};
   font-size: ${({ theme }) => theme.FONT_SIZE.LG}px;
   letter-spacing: 0.2px;
-  margin-bottom: 16px;
+  margin-bottom: 12px;
+`;
+
+export const Wrapper = styled.View`
+  padding: 0 16px;
 `;

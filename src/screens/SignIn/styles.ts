@@ -13,7 +13,7 @@ export const Content = styled.View`
   justify-content: space-between;
 `;
 
-export const Form = styled.View`
+export const Form = styled.KeyboardAvoidingView`
   margin-top: 40px;
 `;
 
@@ -52,7 +52,7 @@ export const Message = styled.Text`
   text-align: center;
 `;
 
-export const InputWrapper = styled.View`
+export const InputWrapper = styled.KeyboardAvoidingView`
   margin-bottom: 24px;
 `;
 
