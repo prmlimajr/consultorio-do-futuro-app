@@ -1,14 +1,19 @@
-import { createContext, useState } from 'react';
+import { createContext, useEffect, useState } from 'react';
 import { User } from '../types/user';
 import { api } from '../config/api';
 import { AppError } from '../utils/AppError';
 import Toast from 'react-native-toast-message';
+import {
+  storageUserGet,
+  storageUserRemove,
+  storageUserSave,
+} from '../storage/storageUser';
 
 interface AuthContextData {
   user: User;
   loading: boolean;
-  error: boolean;
-  signIn: ({ email, password }: SignInCredentials) => Promise<boolean>;
+  signIn: ({ email, password }: SignInCredentials) => Promise<void>;
+  signOut: () => Promise<void>;
 }
 
 export const AuthContext = createContext<AuthContextData>(
@@ -27,12 +32,34 @@ interface SignInCredentials {
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [user, setUser] = useState({} as User);
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(false);
+
+  useEffect(() => {
+    loadUserData();
+  }, []);
+
+  async function loadUserData() {
+    try {
+      setLoading(true);
+
+      const loggedUser = await storageUserGet();
+
+      if (loggedUser) {
+        setUser(loggedUser);
+      }
+    } catch (error) {
+      Toast.show({
+        type: 'error',
+        text1: 'Falha ao carregar usuário logado. Faça login novamente.',
+        onPress: () => Toast.hide(),
+      });
+    } finally {
+      setLoading(false);
+    }
+  }
 
   async function signIn({ email, password }: SignInCredentials) {
     try {
       setLoading(true);
-      setError(false);
 
       const { data } = await api.post('/auth', {
         email: email.trim().toLowerCase(),
@@ -41,30 +68,44 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
       setUser(data.user);
 
-      return true;
+      storageUserSave(data.user);
     } catch (error) {
-      setError(true);
-
       const isAppError = error instanceof AppError;
 
       const message = isAppError
         ? error.message
-        : 'Falha na autenticação, verifique suas credenciais.';
+        : 'Falha na autenticação. Tente novamente mais tarde.';
 
       Toast.show({
         type: 'error',
         text1: message,
         onPress: () => Toast.hide(),
       });
+    } finally {
+      setLoading(false);
+    }
+  }
 
-      return false;
+  async function signOut() {
+    try {
+      setLoading(true);
+
+      setUser({} as User);
+
+      await storageUserRemove();
+    } catch (error) {
+      Toast.show({
+        type: 'error',
+        text1: 'Falha ao sair da conta. Tente novamente.',
+        onPress: () => Toast.hide(),
+      });
     } finally {
       setLoading(false);
     }
   }
 
   return (
-    <AuthContext.Provider value={{ user, loading, error, signIn }}>
+    <AuthContext.Provider value={{ user, loading, signIn, signOut }}>
       {children}
     </AuthContext.Provider>
   );

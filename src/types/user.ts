@@ -1,3 +1,12 @@
+type Services = {
+  id: string;
+  name: string;
+  description: string;
+  price: number;
+  createdAt: Date;
+  updatedAt: Date;
+};
+
 type UserClinic = {
   id: string;
   name: string;
@@ -25,4 +34,5 @@ export type User = {
     name: string;
   };
   clinics: UserClinic[];
+  services: Services[];
 };

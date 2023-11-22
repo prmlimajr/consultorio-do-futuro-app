@@ -21,6 +21,7 @@ import { FlatList } from 'react-native';
 import { Menu } from '../../components/Menu';
 import Toast from 'react-native-toast-message';
 import { useAuth } from '../../hooks/useAuth';
+import { EmptyList } from '../../components/EmptyList';
 
 export function Home() {
   const [loading, setLoading] = useState(false);
@@ -133,7 +134,7 @@ export function Home() {
         ListHeaderComponent={() => {
           return (
             <>
-              <UserRegisterArea />
+              {!user?.id && <UserRegisterArea />}
 
               <GreetingContainer>
                 <GreetingTitle>
@@ -146,17 +147,27 @@ export function Home() {
               <Section>
                 <SectionTitle>Serviço(s)</SectionTitle>
 
-                <ServiceCard
-                  name="Nome do serviço"
-                  image="https://picsum.photos/200/300"
-                  length="150"
-                  link="https://google.com"
-                />
+                {user.services?.length > 0 ? (
+                  <ServiceCard
+                    name="Nome do serviço"
+                    image="https://picsum.photos/200/300"
+                    length="150"
+                    link="https://google.com"
+                  />
+                ) : (
+                  <EmptyList message="Ainda não há serviço(s) disponíveis." />
+                )}
               </Section>
 
               <Wrapper>
                 <SectionTitle>Blog</SectionTitle>
               </Wrapper>
+
+              {blogPosts.length === 0 && (
+                <Wrapper>
+                  <EmptyList message="Ainda não há conteúdos disponíveis." />
+                </Wrapper>
+              )}
             </>
           );
         }}

@@ -13,17 +13,24 @@ export const toastConfig = {
       {...props}
       style={{
         width: '95%',
-        height: 84,
         borderLeftColor: '#23A047',
         backgroundColor: '#EEFFF3',
         borderRadius: 0,
       }}
+      text1Props={{
+        style: {
+          color: '#242424',
+          fontSize: 14,
+          marginLeft: -16,
+        },
+      }}
+      text1NumberOfLines={2}
       renderLeadingIcon={() => (
         <CheckCircleIcon
           width={24}
           height={24}
           color="#23A047"
-          style={{ marginTop: 22, marginLeft: 16 }}
+          style={{ marginTop: 18, marginLeft: 16 }}
         />
       )}
       renderTrailingIcon={() => (
@@ -31,7 +38,7 @@ export const toastConfig = {
           width={24}
           height={24}
           color="#242424"
-          style={{ marginTop: 22, marginRight: 16 }}
+          style={{ marginTop: 18, marginRight: 16 }}
         />
       )}
     />
@@ -41,17 +48,20 @@ export const toastConfig = {
       {...props}
       style={{
         width: '95%',
-        height: 84,
         borderLeftColor: '#F44336',
         backgroundColor: '#FFF3F3',
         borderRadius: 0,
       }}
+      text1Props={{
+        style: { color: '#242424', fontSize: 14, marginLeft: -16 },
+      }}
+      text1NumberOfLines={2}
       renderLeadingIcon={() => (
         <XCircleIcon
           width={24}
           height={24}
           color="#F44336"
-          style={{ marginTop: 22, marginLeft: 16 }}
+          style={{ marginTop: 18, marginLeft: 16 }}
         />
       )}
       renderTrailingIcon={() => (
@@ -59,7 +69,7 @@ export const toastConfig = {
           width={24}
           height={24}
           color="#242424"
-          style={{ marginTop: 22, marginRight: 16 }}
+          style={{ marginTop: 18, marginRight: 16 }}
         />
       )}
     />
@@ -69,17 +79,20 @@ export const toastConfig = {
       {...props}
       style={{
         width: '95%',
-        height: 84,
         borderLeftColor: '#0052EA',
         backgroundColor: '#F1F6FD',
         borderRadius: 0,
       }}
+      text1Props={{
+        style: { color: '#242424', fontSize: 14, marginLeft: -16 },
+      }}
+      text1NumberOfLines={2}
       renderLeadingIcon={() => (
         <InformationCircleIcon
           width={24}
           height={24}
           color="#0052EA"
-          style={{ marginTop: 22, marginLeft: 16 }}
+          style={{ marginTop: 18, marginLeft: 16 }}
         />
       )}
       renderTrailingIcon={() => (
@@ -87,7 +100,7 @@ export const toastConfig = {
           width={24}
           height={24}
           color="#242424"
-          style={{ marginTop: 22, marginRight: 16 }}
+          style={{ marginTop: 18, marginRight: 16 }}
         />
       )}
     />
@@ -97,17 +110,20 @@ export const toastConfig = {
       {...props}
       style={{
         width: '95%',
-        height: 84,
         borderLeftColor: '#FCA004',
         backgroundColor: '#FFFBED',
         borderRadius: 0,
       }}
+      text1Props={{
+        style: { color: '#242424', fontSize: 14, marginLeft: -16 },
+      }}
+      text1NumberOfLines={2}
       renderLeadingIcon={() => (
         <ExclamationTriangleIcon
           width={24}
           height={24}
           color="#FCA004"
-          style={{ marginTop: 22, marginLeft: 16 }}
+          style={{ marginTop: 18, marginLeft: 16 }}
         />
       )}
       renderTrailingIcon={() => (
@@ -115,7 +131,7 @@ export const toastConfig = {
           width={24}
           height={24}
           color="#242424"
-          style={{ marginTop: 22, marginRight: 16 }}
+          style={{ marginTop: 18, marginRight: 16 }}
         />
       )}
     />

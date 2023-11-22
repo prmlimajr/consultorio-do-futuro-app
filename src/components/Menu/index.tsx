@@ -10,6 +10,7 @@ import {
   MenuList,
 } from './styles';
 import { useNavigation } from '@react-navigation/native';
+import { useAuth } from '../../hooks/useAuth';
 
 interface MenuProps {
   setIsMenuOpen: (value: boolean) => void;
@@ -17,6 +18,17 @@ interface MenuProps {
 
 export function Menu({ setIsMenuOpen }: MenuProps) {
   const navigator = useNavigation();
+  const { signOut, user } = useAuth();
+
+  const handlePress = (route: string, isSigningOut?: string) => {
+    if (isSigningOut) {
+      signOut();
+    }
+
+    navigator.navigate(route);
+
+    setIsMenuOpen(false);
+  };
 
   return (
     <Container>
@@ -27,15 +39,19 @@ export function Menu({ setIsMenuOpen }: MenuProps) {
       </CloseArea>
 
       <MenuList>
-        <Clickable onPress={() => navigator.navigate('Home')}>
+        <Clickable onPress={() => handlePress('Home')}>
           <Item>Início</Item>
         </Clickable>
-        <Clickable onPress={() => navigator.navigate('SignIn')}>
-          <Item>Fazer login</Item>
-        </Clickable>
-        <Clickable onPress={() => navigator.navigate('SignUp')}>
-          <Item>Cadastre-se</Item>
-        </Clickable>
+        {!user?.id && (
+          <>
+            <Clickable onPress={() => handlePress('SignIn')}>
+              <Item>Fazer login</Item>
+            </Clickable>
+            <Clickable onPress={() => handlePress('SignUp')}>
+              <Item>Cadastre-se</Item>
+            </Clickable>
+          </>
+        )}
         <Clickable>
           <Item>Mensagens</Item>
         </Clickable>
@@ -48,6 +64,12 @@ export function Menu({ setIsMenuOpen }: MenuProps) {
           <ArrowRightIcon color="#FFF" fill="white" size={16} />
         </Button>
       </ButtonWrapper>
+
+      <MenuList>
+        <Clickable onPress={() => handlePress('Home', 'signout')}>
+          <Item>Sair</Item>
+        </Clickable>
+      </MenuList>
     </Container>
   );
 }

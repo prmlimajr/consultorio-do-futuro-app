@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { GoBackButton } from '../../components/GoBackButton';
 import { Input } from '../../components/Input';
 import {
@@ -28,16 +28,18 @@ export function SignIn() {
   const [password, setPassword] = useState('');
   const [isPasswordVisible, setIsPasswordVisible] = useState(false);
 
-  const { signIn, loading } = useAuth();
+  const { signIn, loading, user } = useAuth();
 
   const emailRegex = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w\w+)+$/;
 
-  const handleSubmit = async () => {
-    const isLogged = await signIn({ email, password });
-
-    if (isLogged) {
+  useEffect(() => {
+    if (user?.id) {
       navigator.navigate('Home');
     }
+  }, [user]);
+
+  const handleSubmit = async () => {
+    await signIn({ email, password });
   };
 
   const handleChange = (field: string, value: string) => {
@@ -106,7 +108,7 @@ export function SignIn() {
             <Button
               text="Entrar"
               onPress={handleSubmit}
-              disabled={loading || (!email && !password)}
+              disabled={loading || !(email && password)}
               loading={loading}
             />
           </ButtonWrapper>

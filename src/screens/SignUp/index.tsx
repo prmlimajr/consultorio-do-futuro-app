@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { GoBackButton } from '../../components/GoBackButton';
 import { Input } from '../../components/Input';
 import { Button } from '../../components/Button';
@@ -30,6 +30,11 @@ import { CodeVerifier } from '../../components/CodeVerifier';
 import { CheckIcon } from 'react-native-heroicons/outline';
 import { REQUIREMENTS } from '../../utils/passwordRequirements';
 import { phoneMask } from '../../utils/phoneMask';
+import { useAuth } from '../../hooks/useAuth';
+import Toast from 'react-native-toast-message';
+import { AppError } from '../../utils/AppError';
+import { api } from '../../config/api';
+import { APP_CONFIG } from '../../config/app-config';
 
 export function SignUp() {
   const navigator = useNavigation();
@@ -45,26 +50,166 @@ export function SignUp() {
     useState(false);
   const [verifyCode, setVerifyCode] = useState('');
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(false);
   const [success, setSuccess] = useState(false);
+
+  const { user } = useAuth();
+
+  useEffect(() => {
+    if (user?.id) {
+      navigator.navigate('Home');
+    }
+  }, [user]);
 
   const emailRegex = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w\w+)+$/;
 
+  const validatePassword = (passwordToBeValidated: string) => {
+    if (passwordToBeValidated.length < 8) {
+      return false;
+    }
+
+    if (!/[a-z]/.test(passwordToBeValidated)) {
+      return false;
+    }
+
+    if (!/[A-Z]/.test(passwordToBeValidated)) {
+      return false;
+    }
+
+    if (!/[0-9]/.test(passwordToBeValidated)) {
+      return false;
+    }
+
+    if (!/[^a-zA-Z0-9]/.test(passwordToBeValidated)) {
+      return false;
+    }
+
+    return true;
+  };
+
   const handleSubmit = async () => {
-    setSuccess(true);
+    try {
+      setLoading(true);
+
+      if (
+        !name ||
+        phone.length < 14 ||
+        !email ||
+        !password ||
+        !passwordConfirmation
+      ) {
+        return Toast.show({
+          type: 'alert',
+          text1: 'Preencha todos os campos para se cadastrar.',
+        });
+      }
+
+      if (password !== passwordConfirmation) {
+        return Toast.show({
+          type: 'alert',
+          text1: 'As senhas informadas não conferem.',
+        });
+      }
+
+      if (!validatePassword(password)) {
+        return Toast.show({
+          type: 'error',
+          text1:
+            'A senha deve conter no mínimo 8 caracteres, uma letra maiúscula, uma minúscula, um número e um caractere especial.',
+        });
+      }
+
+      await api.post('/users', {
+        name: name.trim(),
+        phone: phone.replace(/\D/g, ''),
+        email,
+        password: password.trim(),
+        passwordConfirmation: passwordConfirmation.trim(),
+        clinicId: APP_CONFIG.clinicId,
+      });
+
+      setFormPage(3);
+    } catch (error) {
+      const isAppError = error instanceof AppError;
+
+      const message = isAppError
+        ? error.message
+        : 'Falha no cadastro. Tente novamente mais tarde.';
+
+      Toast.show({
+        type: 'error',
+        text1: message,
+        onPress: () => Toast.hide(),
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleVerifyCode = async () => {
+    try {
+      setLoading(true);
+
+      await api.post('/users/verify', {
+        token: verifyCode,
+        email,
+      });
+
+      setSuccess(true);
+    } catch (error) {
+      const isAppError = error instanceof AppError;
+
+      const message = isAppError
+        ? error.message
+        : 'Código inserido incorreto. Tente novamente ou reenvie o código para seu e-mail.';
+
+      Toast.show({
+        type: 'error',
+        text1: message,
+        onPress: () => Toast.hide(),
+      });
+    } finally {
+      setLoading(false);
+    }
   };
 
   const sendCode = async () => {
-    console.log('send code');
+    try {
+      setLoading(true);
+
+      await api.post(`/users/resend/${email}`, {
+        email,
+      });
+
+      Toast.show({
+        type: 'success',
+        text1:
+          'Reenviamos o código para o e-mail. Confira a caixa de spam e a lixeira.',
+        onPress: () => Toast.hide(),
+      });
+    } catch (error) {
+      const isAppError = error instanceof AppError;
+
+      const message = isAppError
+        ? error.message
+        : 'Falha no envio do código. Tente novamente mais tarde.';
+
+      Toast.show({
+        type: 'error',
+        text1: message,
+        onPress: () => Toast.hide(),
+      });
+    } finally {
+      setLoading(false);
+    }
   };
 
   const validateEmail = (value: string) => {
     if (!emailRegex.test(value.trim())) {
-      setEmail(value.trim());
+      setEmail(value.toLowerCase().trim());
       return;
     }
 
-    setEmail(value.trim());
+    setEmail(value.toLowerCase().trim());
   };
 
   const renderPage = () => {
@@ -114,6 +259,7 @@ export function SignUp() {
                 secureTextEntry={!isPasswordVisible}
                 onClickIcon={() => setIsPasswordVisible(!isPasswordVisible)}
                 value={password}
+                hasError={!validatePassword(password)}
               />
             </InputWrapper>
 
@@ -127,6 +273,7 @@ export function SignUp() {
                 setIsPasswordConfirmationVisible(!isPasswordConfirmationVisible)
               }
               value={passwordConfirmation}
+              hasError={!validatePassword(passwordConfirmation)}
             />
 
             <RequirementsList>
@@ -145,6 +292,23 @@ export function SignUp() {
       default:
         break;
     }
+  };
+
+  const renderCodeVerificationPage = () => {
+    return (
+      <>
+        <GreetingContainer isVerifying>
+          <GreetingTitle>Código de {'\n'}verificação</GreetingTitle>
+
+          <Message>
+            Digite o código de verificação que acabamos de {'\n'} enviar em seu
+            endereço de e-mail.
+          </Message>
+        </GreetingContainer>
+
+        <CodeVerifier code={verifyCode} setCode={setVerifyCode} />
+      </>
+    );
   };
 
   if (success) {
@@ -202,18 +366,7 @@ export function SignUp() {
               </Pagination>
             </>
           ) : (
-            <>
-              <GreetingContainer isVerifying>
-                <GreetingTitle>Código de {'\n'}verificação</GreetingTitle>
-
-                <Message>
-                  Digite o código de verificação que acabamos de {'\n'} enviar
-                  em seu endereço de e-mail.
-                </Message>
-              </GreetingContainer>
-
-              <CodeVerifier code={verifyCode} setCode={setVerifyCode} />
-            </>
+            renderCodeVerificationPage()
           )}
 
           {renderPage()}
@@ -221,11 +374,21 @@ export function SignUp() {
           <ButtonWrapper>
             <Button
               text={formPage < 3 ? 'Continuar' : 'Verificar'}
-              onPress={() => (formPage === 1 ? setFormPage(2) : handleSubmit())}
+              onPress={() =>
+                formPage === 3
+                  ? handleVerifyCode()
+                  : formPage === 1
+                    ? setFormPage(2)
+                    : handleSubmit()
+              }
               disabled={
+                loading ||
                 (formPage === 1 && (!name || phone.length < 14)) ||
                 (formPage === 2 &&
-                  (!email || !password || !passwordConfirmation))
+                  (!email ||
+                    !validatePassword(password) ||
+                    !validatePassword(passwordConfirmation))) ||
+                (formPage === 3 && verifyCode.length < 6)
               }
             />
           </ButtonWrapper>

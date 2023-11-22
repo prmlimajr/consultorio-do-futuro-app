@@ -17,7 +17,7 @@ const styles = StyleSheet.create({
     height: CELL_SIZE,
     width: CELL_SIZE,
     lineHeight: CELL_SIZE - 5,
-    fontSize: 30,
+    fontSize: 16,
     textAlign: 'center',
     borderRadius: CELL_BORDER_RADIUS,
     color: '#424242',

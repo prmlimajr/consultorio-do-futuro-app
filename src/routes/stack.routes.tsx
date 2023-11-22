@@ -5,10 +5,14 @@ import { SignIn } from '../screens/SignIn';
 import { SignUp } from '../screens/SignUp';
 import { ForgotPassword } from '../screens/ForgotPassword';
 import { ResetPassword } from '../screens/ResetPassword';
+import { useAuth } from '../hooks/useAuth';
+import { Appointments } from '../screens/Appointments';
 
 const Stack = createNativeStackNavigator();
 
-export function BlogRoutes() {
+export function StackRoutes() {
+  const { user } = useAuth();
+
   return (
     <Stack.Navigator screenOptions={{ headerShown: false }}>
       <Stack.Screen name="Home" component={Home} />
@@ -17,6 +21,12 @@ export function BlogRoutes() {
       <Stack.Screen name="SignUp" component={SignUp} />
       <Stack.Screen name="ForgotPassword" component={ForgotPassword} />
       <Stack.Screen name="ResetPassword" component={ResetPassword} />
+      {
+        <Stack.Screen
+          name="Appointments"
+          component={user?.id ? Appointments : SignIn}
+        />
+      }
     </Stack.Navigator>
   );
 }

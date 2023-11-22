@@ -65,29 +65,29 @@ export function CodeVerifier({ code, setCode }: CodeVerifierProps) {
     isFocused: boolean;
   }) => {
     const hasValue = Boolean(symbol);
-    const animatedCellStyle = {
-      backgroundColor: hasValue
-        ? animationsScale[index].interpolate({
-            inputRange: [0, 1],
-            outputRange: [NOT_EMPTY_CELL_BG_COLOR, ACTIVE_CELL_BG_COLOR],
-          })
-        : animationsColor[index].interpolate({
-            inputRange: [0, 1],
-            outputRange: [DEFAULT_CELL_BG_COLOR, ACTIVE_CELL_BG_COLOR],
-          }),
-      borderRadius: animationsScale[index].interpolate({
-        inputRange: [0, 1],
-        outputRange: [CELL_SIZE, CELL_BORDER_RADIUS],
-      }),
-      transform: [
-        {
-          scale: animationsScale[index].interpolate({
-            inputRange: [0, 1],
-            outputRange: [0.2, 1],
-          }),
-        },
-      ],
-    };
+    // const animatedCellStyle = {
+    //   backgroundColor: hasValue
+    //     ? animationsScale[index].interpolate({
+    //         inputRange: [0, 1],
+    //         outputRange: [NOT_EMPTY_CELL_BG_COLOR, ACTIVE_CELL_BG_COLOR],
+    //       })
+    //     : animationsColor[index].interpolate({
+    //         inputRange: [0, 1],
+    //         outputRange: [DEFAULT_CELL_BG_COLOR, ACTIVE_CELL_BG_COLOR],
+    //       }),
+    //   borderRadius: animationsScale[index].interpolate({
+    //     inputRange: [0, 1],
+    //     outputRange: [CELL_SIZE, CELL_BORDER_RADIUS],
+    //   }),
+    //   transform: [
+    //     {
+    //       scale: animationsScale[index].interpolate({
+    //         inputRange: [0, 1],
+    //         outputRange: [0.2, 1],
+    //       }),
+    //     },
+    //   ],
+    // };
 
     // Run animation on next event loop tik
     // Because we need first return new style prop and then animate this code
@@ -98,7 +98,8 @@ export function CodeVerifier({ code, setCode }: CodeVerifierProps) {
     return (
       <AnimatedText
         key={index}
-        style={[styles.cell, animatedCellStyle]}
+        // style={[styles.cell, animatedCellStyle]}
+        style={styles.cell}
         onLayout={getCellOnLayoutHandler(index)}
       >
         {symbol || (isFocused ? <Cursor /> : null)}
